@@ -1,0 +1,5 @@
+PeliFarmi/Library/
+PeliFarmi/Temp/
+*.csproj
+*.sln
+PeliFarmi/.vs/
