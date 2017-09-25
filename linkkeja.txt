@@ -1,0 +1,3 @@
+Unity tutoriaaleja: https://unity3d.com/learn/tutorials
+Unity manual: https://docs.unity3d.com/Manual/
+Unity scripting api: https://docs.unity3d.com/ScriptReference/
