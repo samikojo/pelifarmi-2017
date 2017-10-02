@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Luokka, joka liikuttaa kameraa kohteen sijainnin mukaisesti.
 public class CameraFollow : MonoBehaviour
 {
 	// Seurattava kohde
