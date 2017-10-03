@@ -11,6 +11,10 @@ public enum PlayerType
 // Avainsana abstract estää olioiden luomisen tästä luokasta.
 // Tämän vuoksi tästä luokasta pitää periä toinen, ei abstrakti luokka,
 // joka perii tämän luokan.
+//
+// RequireComponent attribuutti kertoo Unitylle, minkä tyyppisistä 
+// komponenteista tämä luokka on riippuvainen.
+[RequireComponent(typeof(Score)), RequireComponent(typeof(Mover))]
 public abstract class Player : MonoBehaviour
 {
 	// Staattinen muuttuja on yhteinen kaikille saman tyypin (tai perityn tyypin)
@@ -28,6 +32,11 @@ public abstract class Player : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	public static List<Player> GetAllPlayers()
+	{
+		return _allPlayers;
 	}
 
 	private Mover _mover;

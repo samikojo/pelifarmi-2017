@@ -13,7 +13,16 @@ public class CoinSpawner : MonoBehaviour
 	// Luodaan uusi lista, jonka tyyppi on Transform. Tähän listaan lisätään
 	// viittaukset kaikkiin tämän GameObjectin lapsiobjektien Transform-
 	// komponenttiin.
-	private List<Transform> _children = new List<Transform>();
+	// Jotta emme loisi kolikoita päällekkäin, korvasimme listan dictionarylla,
+	// joka pitää kirjaa luoduista kolikoista.
+	//private List<Transform> _children = new List<Transform>();
+
+	// Avain-arvo tietorakenne. Avaimen on oltava yksilöllinen (jokainen 
+	// transform on).
+	private Dictionary<Transform, Coin> _coinPoints = 
+		new Dictionary<Transform, Coin>();
+
+
 	// Kuvaa kauanko aikaa on kulunut siitä, kun kolikko luotiin edellisen 
 	// kerran.
 	private float _timer = 0;
@@ -35,7 +44,11 @@ public class CoinSpawner : MonoBehaviour
 			// komponentteihin, paitsi siihen, joka kuuluu tälle spawnerille.
 			if(child != transform)
 			{
-				_children.Add(child);
+				// Dictionaryyn lisättäessä meidän on lisättävä sekä avain että arvo,
+				// tässä tapauksessa transform ja coin. Koska kolikoita ei vielä
+				// ole luotu, käytetään arvona arvoa 'null', joka kertoo meille,
+				// ettei kolikkoa vielä ole.
+				_coinPoints.Add( child, null );
 			}
 		}
 
@@ -48,20 +61,43 @@ public class CoinSpawner : MonoBehaviour
 		// Kasvatetaan timerin arvoa sillä ajalla, joka on kulunut edellisestä 
 		// Update-kutsusta.
 		_timer += Time.deltaTime;
-		if(_timer >= _spawnTime)
+
+		// Etsitään ne transformit, joille ei ole vielä luotu kolikkoa.
+		List<Transform> emptyPoints = new List< Transform >();
+
+		// Dictionaryn elementit ovat tyypiltään avain-arvo -pareja 
+		// (KeyValuePair).
+		foreach ( KeyValuePair< Transform, Coin > keyValuePair in _coinPoints )
+		{
+			if ( keyValuePair.Value == null )
+			{
+				// Tälle transformille ei ole luotu kolikkoa vielä.
+				emptyPoints.Add( keyValuePair.Key );
+			}
+		}
+		
+		if( _timer >= _spawnTime && emptyPoints.Count > 0 )
 		{
 			// Ajastin kului "loppuun", luodaan kolikko.
 
-			// Haetaan satunnainen indeksi '_children' taulukosta, joka sisältää
+			// Haetaan satunnainen indeksi 'emptyPoints' taulukosta, joka sisältää
 			// sen sijainnin, johon kolikko luodaan.
-			int randomIndex = Random.Range(0, _children.Count);
+			int randomIndex = Random.Range(0, emptyPoints.Count);
+
+			// Tallennetaan viittaus siihen transformiin, jonka kohdalle kolikko luodaan.
+			Transform pointTransform = emptyPoints[ randomIndex ];
+
 			// Tallennetaan kolikon tuleva sijainti omaan muuttujaansa.
-			Vector3 position = _children[randomIndex].position;
+			Vector3 position = pointTransform.position;
 
 			// Luodaan kopio CoinPrefab prefabista.
 			Coin coin = Instantiate(CoinPrefab);
 			// Asetetaan kolikko oikeaan sijaintiin.
 			coin.transform.position = position;
+
+			// Lisätään Dictionaryyn viittaus luomaamme kolikkoon avaimen pointTransform
+			// kohdalle.
+			_coinPoints[ pointTransform ] = coin;
 
 			// Alustetaan ajastin.
 			_timer = 0;
