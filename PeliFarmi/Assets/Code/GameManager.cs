@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+	private static GameManager _current;
+
+	public static GameManager Current
+	{
+		get { return _current; }
+	}
+
 	// Aika, jonka jälkeen peli päättyy (sekunteina).
 	public float MaxTime = 60;
 
@@ -15,6 +22,11 @@ public class GameManager : MonoBehaviour
 
 	// Kertoo, onko peli käynnissä vai ei.
 	private bool _isRunning = false;
+
+	private void Awake()
+	{
+		_current = this;
+	}
 
 	// Pelin käynnistuessä alustetaan ajastin ja asetetaan _isRunning muuttujan arvoksi
 	// true, jotta ajastin käynnistyisi.
@@ -32,7 +44,30 @@ public class GameManager : MonoBehaviour
 			return;
 		}
 
-		_isRunning = UpdateTimer();
+		// Peli pysyy käynnissä niin kauan, kun ajastin ei ole saavuttanut arvoa 0 ja
+		// yksikään pelaaja ei ole saavuttanut tavoitepistemäärää.
+		_isRunning = UpdateTimer() == true && GetWinner() == null;
+
+		// Jos peli päättyy, kutsutaan GameOver metodia.
+		if(_isRunning == false)
+		{
+			GameOver();
+		}
+	}
+
+	private void GameOver()
+	{
+		// Yritetään löytää pelaaja, joka on saavuttanut maksimipistemäärän.
+		Player winner = GetWinner();
+		if(winner == null)
+		{
+			// Jos kukaan pelaajista ei ole saavuttanut maksimipistemäärää, etsitään pelaaja,
+			// jolla on eniten pisteitä.
+			winner = GetLeadingPlayer();
+		}
+
+		// Välitetään voittanut pelaaja UI:lle GameOver-ikkunan näyttämistä varten.
+		UI.Current.ShowGameOver(winner);
 	}
 
 	// Päivittää ajastimen arvoa. Palauttaa true, kun peli on käynnissä ja kun pelin
@@ -68,5 +103,29 @@ public class GameManager : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	private Player GetLeadingPlayer()
+	{
+		Player leadingPlayer = null;
+		int maxScore = 0;
+		List<Player> allPlayers = Player.GetAllPlayers();
+
+		foreach(Player player in allPlayers)
+		{
+			if(player.Score.GetCurrentScore() > maxScore)
+			{
+				leadingPlayer = player;
+				maxScore = player.Score.GetCurrentScore();
+			}
+		}
+
+		return leadingPlayer;
+	}
+
+	// Palauttaa jäljellä olevan ajan.
+	public float GetCurrentTime()
+	{
+		return _currentTime;
 	}
 }
