@@ -30,4 +30,21 @@ public class Mover : MonoBehaviour
 		// Asetetaan uusi rotaatio.
 		transform.eulerAngles = rotation;
 	}
+
+	public void MoveForward()
+	{
+		transform.Translate(transform.forward * Speed * Time.deltaTime, Space.World);
+	}
+
+	public void RotateTowards(Vector3 targetPosition)
+	{
+		// Määritetään suunta, johon käännetään vastustajakuutio.
+		Vector3 direction = (targetPosition - transform.position).normalized;
+		// Luodaan rotaatio, jonka asettamalla kuutiolle saadaan kuutio käännettyä
+		// haluamaamme suuntaan.
+		Quaternion lookRotation = Quaternion.LookRotation(direction);
+		// Käännetään kuutio asettamalla rotaatio Slerp-metodin avulla.
+		transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation,
+			Time.deltaTime * RotationSpeed);
+	}
 }

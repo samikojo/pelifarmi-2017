@@ -114,4 +114,45 @@ public class CoinSpawner : MonoBehaviour
 		float spawnTime = Random.Range(MinSpawnTime, MaxSpawnTime);
 		return spawnTime;
 	}
+
+	public Coin GetClosestCoin(Vector3 position)
+	{
+		List<Coin> coins = GetCoins();
+		Coin closest = null;
+		float minDistance = float.PositiveInfinity;
+
+		// Käydään kaikki pelimaailmassa olevat kolokot läpi ja etsitään niistä se,
+		// joka on lähinnä pistettä 'position'.
+		foreach(Coin coin in coins)
+		{
+			float distance = Vector3.Distance(position, coin.transform.position);
+			if(distance < minDistance)
+			{
+				// Mikäli löydettiin lähempänä oleva kolikko, tallennetaan muuttujaan 'closest'
+				// viittaus siihen. Päivitetään myös 'minDistance' muuttujan arvo.
+				closest = coin;
+				minDistance = distance;
+			}
+		}
+
+		return closest;
+	}
+
+	private List<Coin> GetCoins()
+	{
+		List<Coin> coins = new List<Coin>();
+		// Kolikot on tallennettu Dictionary-tietorakenteeseen. Dictionary sisältää
+		// avain-arvo -pareja. _coinPoints dictionaryn tapauksessa avain on tyyppiä
+		// Transform ja arvo Coin. Tässä metodissa haemme viittaukset kaikkiin 
+		// dictionaryssa oleviin Coin-tyyppisiin olioihin.
+		foreach(KeyValuePair<Transform, Coin> coinPoint in _coinPoints)
+		{
+			if(coinPoint.Value != null)
+			{
+				coins.Add(coinPoint.Value);
+			}
+		}
+
+		return coins;
+	}
 }

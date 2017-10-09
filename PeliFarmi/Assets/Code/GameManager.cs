@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
 	// Kertoo, onko peli käynnissä vai ei.
 	private bool _isRunning = false;
 
+	// Viittaus scenessä olevaan CoinSpawneriin.
+	private CoinSpawner _coinSpawner;
+
 	private void Awake()
 	{
 		_current = this;
@@ -127,5 +130,14 @@ public class GameManager : MonoBehaviour
 	public float GetCurrentTime()
 	{
 		return _currentTime;
+	}
+
+	public CoinSpawner GetCoinSpawner()
+	{
+		if(_coinSpawner == null)
+		{
+			_coinSpawner = FindObjectOfType<CoinSpawner>();
+		}
+		return _coinSpawner;
 	}
 }
